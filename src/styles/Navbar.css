@@ -1,0 +1,928 @@
+/* ============================================================
+   Namustutam — Navbar CSS  |  prefix: nmt-
+   Day (Light) = DEFAULT  |  Night (Dark) = [data-nmt-theme="dark"]
+   ============================================================ */
+
+/* ─────────────────────────────────────────
+   DAY THEME (DEFAULT — Light Mode)
+───────────────────────────────────────── */
+:root,
+[data-nmt-theme="light"] {
+  /* Navbar surface */
+  --nmt-nav-bg: #ffffff;
+  --nmt-nav-border: #e2e8f0;
+  --nmt-nav-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+
+  /* Brand accents */
+  --nmt-violet: #6d28d9;
+  --nmt-cyan: #0891b2;
+  --nmt-grad: linear-gradient(135deg, #6d28d9 0%, #0891b2 100%);
+
+  /* Text */
+  --nmt-text: #1e293b;
+  --nmt-muted: #64748b;
+  --nmt-link: #475569;
+  --nmt-link-hover: #1e293b;
+  --nmt-link-active-bg: rgba(109, 40, 217, 0.08);
+  --nmt-link-hover-bg: rgba(109, 40, 217, 0.07);
+
+  /* Dropdown */
+  --nmt-drop-bg: #ffffff;
+  --nmt-drop-border: #e2e8f0;
+  --nmt-drop-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --nmt-drop-hover-bg: rgba(109, 40, 217, 0.07);
+  --nmt-drop-hover-text: #6d28d9;
+  --nmt-drop-icon-bg: rgba(109, 40, 217, 0.08);
+  --nmt-drop-icon-color: #6d28d9;
+
+  /* Toggle */
+  --nmt-toggle-bg: #f1f5f9;
+  --nmt-toggle-border: #e2e8f0;
+  --nmt-toggle-text: #475569;
+  --nmt-toggle-track: #fbbf24;
+  /* warm amber track (sun) */
+  --nmt-toggle-thumb: #ffffff;
+
+  /* Social */
+  --nmt-social-border-op: 0.3;
+
+  /* Misc */
+  --nmt-divider-bg: #e2e8f0;
+  --nmt-radius-sm: 8px;
+  --nmt-radius-md: 14px;
+  --nmt-radius-pill: 50px;
+  --nmt-ease: all 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  --nmt-height: 68px;
+}
+
+/* ─────────────────────────────────────────
+   NIGHT THEME (Dark Mode)
+───────────────────────────────────────── */
+[data-nmt-theme="dark"] {
+  --nmt-nav-bg: #0d0d1a;
+  --nmt-nav-border: rgba(255, 255, 255, 0.07);
+  --nmt-nav-shadow: 0 2px 40px rgba(0, 0, 0, 0.5);
+
+  --nmt-violet: #7c3aed;
+  --nmt-cyan: #06b6d4;
+  --nmt-grad: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+
+  --nmt-text: #f1f5f9;
+  --nmt-muted: #94a3b8;
+  --nmt-link: #cbd5e1;
+  --nmt-link-hover: #f1f5f9;
+  --nmt-link-active-bg: rgba(124, 58, 237, 0.15);
+  --nmt-link-hover-bg: rgba(124, 58, 237, 0.1);
+
+  --nmt-drop-bg: #12121e;
+  --nmt-drop-border: rgba(124, 58, 237, 0.2);
+  --nmt-drop-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  --nmt-drop-hover-bg: rgba(124, 58, 237, 0.12);
+  --nmt-drop-hover-text: #a78bfa;
+  --nmt-drop-icon-bg: rgba(124, 58, 237, 0.12);
+  --nmt-drop-icon-color: #a78bfa;
+
+  --nmt-toggle-bg: rgba(255, 255, 255, 0.07);
+  --nmt-toggle-border: rgba(255, 255, 255, 0.12);
+  --nmt-toggle-text: #94a3b8;
+  --nmt-toggle-track: #4338ca;
+  /* indigo track (moon) */
+  --nmt-toggle-thumb: #1e1e3a;
+
+  --nmt-divider-bg: rgba(255, 255, 255, 0.07);
+}
+
+/* ─────────────────────────────────────────
+   PAGE-LEVEL THEMING (body bg + text)
+───────────────────────────────────────── */
+[data-nmt-theme="light"] body {
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+[data-nmt-theme="dark"] body {
+  background: #0d0d1a;
+  color: #f1f5f9;
+}
+
+/* ─────────────────────────────────────────
+   HEADER SHELL — fixed, floats above video
+───────────────────────────────────────── */
+#nmt-site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1050;
+}
+
+/* ════════════════════════════════════════════════════
+   NAVBAR SHELL — base (transparent while over video)
+════════════════════════════════════════════════════ */
+#nmt-main-navbar.nmt-navbar {
+  background: transparent !important;
+  border-bottom: 1px solid transparent !important;
+  min-height: var(--nmt-height);
+  padding: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  box-shadow: none !important;
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease,
+    backdrop-filter 0.4s ease;
+}
+
+/* ════════════════════════════════════════════════════
+   STATE 1 — OVER VIDEO  (transparent + all-white text)
+   html.nmt-over-video is added on load + while inside hero.
+   Forces every navbar element to white so they're
+   always readable on top of any video footage.
+════════════════════════════════════════════════════ */
+html.nmt-over-video #nmt-main-navbar {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* All text/links → pure white */
+html.nmt-over-video #nmt-main-navbar .nmt-nav-link,
+html.nmt-over-video #nmt-main-navbar .nmt-nav-link.active {
+  color: rgba(255, 255, 255, 0.92) !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+html.nmt-over-video #nmt-main-navbar .nmt-nav-link:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Brand name → white */
+html.nmt-over-video #nmt-main-navbar .nmt-brand-text,
+html.nmt-over-video #nmt-main-navbar .nmt-brand-accent {
+  color: #ffffff !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Chevron → white */
+html.nmt-over-video #nmt-main-navbar .nmt-chevron {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Hamburger bars → white */
+html.nmt-over-video #nmt-main-navbar .nmt-burger-bar {
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Social icons → white */
+html.nmt-over-video #nmt-main-navbar .nmt-social-link {
+  color: rgba(255, 255, 255, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+html.nmt-over-video #nmt-main-navbar .nmt-social-link:hover {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* Toggle label → white */
+html.nmt-over-video #nmt-main-navbar .nmt-toggle-label {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ════════════════════════════════════════════════════
+   STATE 2 — SCROLLED + LIGHT THEME  (frosted white glass)
+   After video ends, user is in ☀️ day mode.
+════════════════════════════════════════════════════ */
+html.nmt-scrolled[data-nmt-theme="light"] #nmt-main-navbar.nmt-navbar,
+html.nmt-scrolled:not([data-nmt-theme="dark"]) #nmt-main-navbar.nmt-navbar {
+  background: rgba(255, 255, 255, 0.75);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Text reverts to light-theme colours (dark slate) */
+html.nmt-scrolled[data-nmt-theme="light"] #nmt-main-navbar .nmt-nav-link,
+html.nmt-scrolled:not([data-nmt-theme="dark"]) #nmt-main-navbar .nmt-nav-link {
+  color: var(--nmt-link) !important;
+  text-shadow: none;
+}
+
+html.nmt-scrolled[data-nmt-theme="light"] #nmt-main-navbar .nmt-nav-link:hover,
+html.nmt-scrolled:not([data-nmt-theme="dark"]) #nmt-main-navbar .nmt-nav-link:hover {
+  color: var(--nmt-link-hover) !important;
+  background: var(--nmt-link-hover-bg) !important;
+}
+
+html.nmt-scrolled[data-nmt-theme="light"] #nmt-main-navbar .nmt-brand-text,
+html.nmt-scrolled:not([data-nmt-theme="dark"]) #nmt-main-navbar .nmt-brand-text {
+  text-shadow: none;
+}
+
+/* ════════════════════════════════════════════════════
+   STATE 3 — SCROLLED + DARK THEME  (deep dark glass)
+   After video ends, user is in 🌙 night mode.
+════════════════════════════════════════════════════ */
+html.nmt-scrolled[data-nmt-theme="dark"] #nmt-main-navbar.nmt-navbar {
+  background: rgba(10, 8, 26, 0.70);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.20);
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(124, 58, 237, 0.08);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+}
+
+/* Text reverts to dark-theme colours (light slate) */
+html.nmt-scrolled[data-nmt-theme="dark"] #nmt-main-navbar .nmt-nav-link {
+  color: var(--nmt-link) !important;
+  text-shadow: none;
+}
+
+html.nmt-scrolled[data-nmt-theme="dark"] #nmt-main-navbar .nmt-nav-link:hover {
+  color: var(--nmt-link-hover) !important;
+  background: var(--nmt-link-hover-bg) !important;
+}
+
+html.nmt-scrolled[data-nmt-theme="dark"] #nmt-main-navbar .nmt-social-link {
+  color: rgba(203, 213, 225, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.nmt-scrolled[data-nmt-theme="dark"] #nmt-main-navbar .nmt-brand-text {
+  text-shadow: none;
+}
+
+
+
+.nmt-nav-inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  min-height: var(--nmt-height);
+  flex-wrap: nowrap;
+}
+
+/* ─────────────────────────────────────────
+   LOGO
+───────────────────────────────────────── */
+#nmt-brand-logo.nmt-brand {
+  text-decoration: none !important;
+  flex-shrink: 0;
+  padding: 0;
+  margin-right: 0.25rem;
+}
+
+.nmt-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nmt-logo-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--nmt-radius-sm);
+  background: var(--nmt-grad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(109, 40, 217, 0.35);
+  flex-shrink: 0;
+  transition: var(--nmt-ease);
+}
+
+#nmt-brand-logo:hover .nmt-logo-badge {
+  transform: rotate(-8deg) scale(1.1);
+  box-shadow: 0 6px 22px rgba(109, 40, 217, 0.55);
+}
+
+.nmt-logo-texts {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  user-select: none;
+}
+
+.nmt-logo-name {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--nmt-text);
+  letter-spacing: -0.2px;
+  transition: color 0.3s ease;
+}
+
+.nmt-logo-accent {
+  background: var(--nmt-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nmt-logo-tagline {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--nmt-muted);
+  margin-top: 1px;
+  transition: color 0.3s ease;
+}
+
+/* ─────────────────────────────────────────
+   TOP BAR CONTROLS (theme toggle + hamburger)
+───────────────────────────────────────── */
+.nmt-topbar-controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (min-width: 992px) {
+  .nmt-topbar-controls {
+    margin-left: 0;
+    order: unset;
+  }
+
+  /* On desktop, hide hamburger; keep toggle visible via .nmt-topbar-controls */
+  #nmt-nav-toggler.nmt-toggler {
+    display: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────
+   DAY / NIGHT TOGGLE BUTTON
+───────────────────────────────────────── */
+#nmt-theme-toggle.nmt-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--nmt-toggle-bg);
+  border: 1.5px solid var(--nmt-toggle-border);
+  border-radius: var(--nmt-radius-pill);
+  padding: 5px 12px 5px 5px;
+  cursor: pointer;
+  transition: var(--nmt-ease);
+  outline: none;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+#nmt-theme-toggle.nmt-theme-btn:hover {
+  border-color: var(--nmt-violet);
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+}
+
+/* Track pill */
+.nmt-theme-track {
+  width: 34px;
+  height: 20px;
+  border-radius: 20px;
+  background: var(--nmt-toggle-track);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  transition: background 0.35s ease;
+  flex-shrink: 0;
+}
+
+/* Thumb circle */
+.nmt-theme-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--nmt-toggle-thumb);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Night → slide thumb right */
+[data-nmt-theme="dark"] .nmt-theme-thumb {
+  transform: translateX(14px);
+  background: #818cf8;
+}
+
+/* Icons inside thumb */
+.nmt-sun-icon,
+.nmt-moon-icon {
+  position: absolute;
+  font-size: 0.65rem;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.nmt-sun-icon {
+  color: #f59e0b;
+}
+
+.nmt-moon-icon {
+  color: #c7d2fe;
+}
+
+.nmt-icon-show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.nmt-icon-hide {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+/* Label */
+.nmt-theme-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--nmt-toggle-text);
+  letter-spacing: 0.4px;
+  transition: color 0.3s ease;
+  user-select: none;
+  min-width: 30px;
+}
+
+/* ─────────────────────────────────────────
+   CUSTOM HAMBURGER
+───────────────────────────────────────── */
+#nmt-nav-toggler.nmt-toggler {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  background: var(--nmt-toggle-bg);
+  border: 1.5px solid var(--nmt-toggle-border) !important;
+  border-radius: var(--nmt-radius-sm);
+  cursor: pointer;
+  transition: var(--nmt-ease);
+}
+
+#nmt-nav-toggler.nmt-toggler:hover,
+#nmt-nav-toggler.nmt-toggler:focus {
+  border-color: var(--nmt-violet) !important;
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15) !important;
+  outline: none;
+}
+
+.nmt-toggler-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 20px;
+}
+
+.nmt-bar {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--nmt-muted);
+  transition: var(--nmt-ease);
+}
+
+.nmt-bar-1 {
+  width: 100%;
+}
+
+.nmt-bar-2 {
+  width: 70%;
+}
+
+.nmt-bar-3 {
+  width: 50%;
+}
+
+#nmt-nav-toggler:hover .nmt-bar-2,
+#nmt-nav-toggler:hover .nmt-bar-3 {
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────
+   COLLAPSE AREA
+───────────────────────────────────────── */
+#nmt-nav-collapse.nmt-collapse-area {
+  align-items: center;
+}
+
+/* ─────────────────────────────────────────
+   NAV MENU LIST (CENTER)
+───────────────────────────────────────── */
+#nmt-center-menu.nmt-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nmt-item {
+  position: relative;
+}
+
+/* Nav Link */
+a.nmt-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--nmt-link) !important;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.55rem 0.9rem !important;
+  border-radius: var(--nmt-radius-sm);
+  text-decoration: none !important;
+  white-space: nowrap;
+  letter-spacing: 0.1px;
+  position: relative;
+  transition: var(--nmt-ease);
+}
+
+/* Underline indicator */
+a.nmt-link::before {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 65%;
+  height: 2px;
+  background: var(--nmt-grad);
+  border-radius: 2px;
+  transition: transform 0.24s ease;
+}
+
+a.nmt-link:hover::before,
+a.nmt-link-active::before {
+  transform: translateX(-50%) scaleX(1);
+}
+
+a.nmt-link:hover {
+  color: var(--nmt-link-hover) !important;
+  background: var(--nmt-link-hover-bg);
+}
+
+a.nmt-link-active {
+  color: var(--nmt-violet) !important;
+  background: var(--nmt-link-active-bg);
+  font-weight: 600;
+}
+
+/* Hide Bootstrap auto caret on dropdown-toggle */
+a.nmt-has-caret.dropdown-toggle::after {
+  display: none !important;
+}
+
+/* Custom chevron caret */
+.nmt-caret-icon {
+  font-size: 0.62rem;
+  margin-left: 1px;
+  line-height: 1;
+  transition: transform 0.24s ease;
+  color: var(--nmt-muted);
+}
+
+.nmt-has-dropdown .nmt-link[aria-expanded="true"] .nmt-caret-icon {
+  transform: rotate(180deg);
+  color: var(--nmt-violet);
+}
+
+/* ─────────────────────────────────────────
+   DROPDOWN MENU
+───────────────────────────────────────── */
+.nmt-dropmenu {
+  background: var(--nmt-drop-bg) !important;
+  border: 1px solid var(--nmt-drop-border) !important;
+  border-radius: var(--nmt-radius-md) !important;
+  box-shadow: var(--nmt-drop-shadow) !important;
+  padding: 0.5rem !important;
+  min-width: 215px;
+  margin-top: 8px !important;
+  animation: nmtDropIn 0.2s ease forwards;
+  transition: background 0.3s ease;
+}
+
+@keyframes nmtDropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+a.nmt-droplink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--nmt-link) !important;
+  font-size: 0.845rem;
+  font-weight: 450;
+  border-radius: var(--nmt-radius-sm) !important;
+  padding: 0.55rem 0.85rem !important;
+  transition: var(--nmt-ease);
+  text-decoration: none !important;
+}
+
+.nmt-drop-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--nmt-drop-icon-bg);
+  color: var(--nmt-drop-icon-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+  transition: var(--nmt-ease);
+}
+
+a.nmt-droplink:hover {
+  background: var(--nmt-drop-hover-bg) !important;
+  color: var(--nmt-drop-hover-text) !important;
+  padding-left: 1rem !important;
+}
+
+a.nmt-droplink:hover .nmt-drop-icon {
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--nmt-cyan);
+}
+
+.nmt-drop-divider {
+  border-color: var(--nmt-nav-border) !important;
+  margin: 0.3rem 0.5rem !important;
+}
+
+/* ─────────────────────────────────────────
+   RIGHT PANEL
+───────────────────────────────────────── */
+#nmt-right-group.nmt-right-panel {
+  flex-shrink: 0;
+}
+
+.nmt-panel-divider {
+  width: 1px;
+  height: 26px;
+  background: var(--nmt-nav-border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────
+   SOCIAL BUTTONS
+───────────────────────────────────────── */
+.nmt-social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  text-decoration: none !important;
+  transition: var(--nmt-ease);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.nmt-social-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.24s ease;
+  z-index: 0;
+}
+
+.nmt-social-btn i {
+  position: relative;
+  z-index: 1;
+}
+
+/* Instagram */
+#nmt-ig.nmt-ig-btn {
+  color: #e1306c;
+  background: rgba(225, 48, 108, 0.08);
+  border: 1.5px solid rgba(225, 48, 108, 0.25);
+}
+
+#nmt-ig.nmt-ig-btn::before {
+  background: radial-gradient(circle at 30% 110%, #ffd600, #ff7a00, #e1306c, #833ab4);
+}
+
+#nmt-ig.nmt-ig-btn:hover {
+  color: #fff;
+  transform: translateY(-3px) scale(1.12);
+  box-shadow: 0 6px 20px rgba(225, 48, 108, 0.45);
+  border-color: transparent;
+}
+
+#nmt-ig.nmt-ig-btn:hover::before {
+  opacity: 1;
+}
+
+/* Facebook */
+#nmt-fb.nmt-fb-btn {
+  color: #1877f2;
+  background: rgba(24, 119, 242, 0.08);
+  border: 1.5px solid rgba(24, 119, 242, 0.25);
+}
+
+#nmt-fb.nmt-fb-btn::before {
+  background: #1877f2;
+}
+
+#nmt-fb.nmt-fb-btn:hover {
+  color: #fff;
+  transform: translateY(-3px) scale(1.12);
+  box-shadow: 0 6px 20px rgba(24, 119, 242, 0.45);
+  border-color: transparent;
+}
+
+#nmt-fb.nmt-fb-btn:hover::before {
+  opacity: 1;
+}
+
+/* LinkedIn */
+#nmt-li.nmt-li-btn {
+  color: #0a66c2;
+  background: rgba(10, 102, 194, 0.08);
+  border: 1.5px solid rgba(10, 102, 194, 0.25);
+}
+
+#nmt-li.nmt-li-btn::before {
+  background: #0a66c2;
+}
+
+#nmt-li.nmt-li-btn:hover {
+  color: #fff;
+  transform: translateY(-3px) scale(1.12);
+  box-shadow: 0 6px 20px rgba(10, 102, 194, 0.45);
+  border-color: transparent;
+}
+
+#nmt-li.nmt-li-btn:hover::before {
+  opacity: 1;
+}
+
+/* ─────────────────────────────────────────
+   CTA BUTTON
+───────────────────────────────────────── */
+#nmt-cta.nmt-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--nmt-grad);
+  color: #fff !important;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.48rem 1.2rem;
+  border-radius: var(--nmt-radius-pill);
+  text-decoration: none !important;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 16px rgba(109, 40, 217, 0.35);
+  transition: var(--nmt-ease);
+  flex-shrink: 0;
+}
+
+#nmt-cta.nmt-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(109, 40, 217, 0.55);
+  filter: brightness(1.08);
+}
+
+/* ═══════════════════════════════════
+   DESKTOP (≥ 992px)
+══════════════════════════════════ */
+@media (min-width: 992px) {
+
+  /* Hover-open dropdowns */
+  .nmt-has-dropdown:hover>.nmt-dropmenu {
+    display: block !important;
+    animation: nmtDropIn 0.2s ease forwards;
+  }
+
+  /* Layout balancing: push menu list to center */
+  #nmt-nav-collapse.nmt-collapse-area {
+    display: flex !important;
+    align-items: center;
+    flex: 1;
+  }
+
+  .nmt-topbar-controls {
+    /* Keep toggle left of hamburger area; hamburger hidden via media query above */
+    margin-left: 0;
+    order: 3;
+  }
+}
+
+/* ═══════════════════════════════════
+   TABLET + MOBILE  (< 992px)
+══════════════════════════════════ */
+@media (max-width: 991.98px) {
+
+  /* Collapse panel styling */
+  #nmt-nav-collapse.nmt-collapse-area {
+    background: var(--nmt-nav-bg);
+    border-top: 1px solid var(--nmt-nav-border);
+    padding: 0.75rem 1rem 1.25rem;
+    border-radius: 0 0 var(--nmt-radius-md) var(--nmt-radius-md);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    transition: background 0.3s ease;
+  }
+
+  /* Stack menus vertically */
+  #nmt-center-menu.nmt-nav-list {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 2px;
+    margin-bottom: 0.75rem;
+  }
+
+  a.nmt-link {
+    padding: 0.7rem 1rem !important;
+    width: 100%;
+    border-radius: var(--nmt-radius-sm);
+  }
+
+  a.nmt-link::before {
+    display: none;
+  }
+
+  /* Dropdown inside collapse */
+  .nmt-dropmenu {
+    box-shadow: none !important;
+    margin: 4px 0 4px 8px !important;
+    animation: none !important;
+    border-radius: var(--nmt-radius-sm) !important;
+  }
+
+  /* Right panel full-width */
+  #nmt-right-group.nmt-right-panel {
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid var(--nmt-nav-border);
+    padding-top: 1rem;
+    margin-top: 0.25rem;
+  }
+
+  .nmt-social-row {
+    justify-content: center;
+  }
+
+  #nmt-cta.nmt-cta-btn {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.88rem;
+    padding: 0.6rem 1.5rem;
+  }
+
+  .nmt-panel-divider {
+    display: none !important;
+  }
+}
+
+/* ═══════════════════════════════════
+   SMALL PHONES (< 480px)
+══════════════════════════════════ */
+@media (max-width: 479.98px) {
+  .nmt-logo-tagline {
+    display: none;
+  }
+
+  .nmt-logo-badge {
+    width: 36px;
+    height: 36px;
+  }
+
+  #nmt-main-navbar.nmt-navbar {
+    min-height: 60px;
+  }
+
+  .nmt-theme-label {
+    display: none;
+  }
+
+  #nmt-theme-toggle.nmt-theme-btn {
+    padding: 5px;
+    border-radius: 50%;
+  }
+}

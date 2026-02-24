@@ -1,0 +1,297 @@
+/* ════════════════════════════════════════════
+   GLOBAL RESET
+════════════════════════════════════════════ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto;
+  /* JS controls scrolling */
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+/* Dark theme body */
+[data-nmt-theme="dark"] body,
+body {
+  background: #0a0812;
+  color: #f1f5f9;
+}
+
+/* Light theme body */
+[data-nmt-theme="light"] body {
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+#root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ════════════════════════════════════════════
+   HERO SECTION
+   Height set by JS: Math.ceil(duration) × PX_PER_SEC
+   The sticky video-wrap creates the scroll-scrub illusion.
+════════════════════════════════════════════ */
+#nmt-hero.nmt-hero-section {
+  position: relative;
+  /* JS will set exact height after video metadata loads */
+  min-height: 100vh;
+  width: 100%;
+  /* No margin-top — navbar is fixed and floats above */
+}
+
+/* ════════════════════════════════════════════
+   VIDEO WRAP — sticky so it covers the viewport
+   while the user scrolls through the hero section.
+   Unsticks naturally when hero section ends.
+════════════════════════════════════════════ */
+.nmt-video-wrap {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  /* modern browsers */
+  overflow: hidden;
+  z-index: 1;
+  /* below fixed navbar (z-index 1050) */
+}
+
+/* ════════════════════════════════════════════
+   VIDEO — full cover, no black bars
+════════════════════════════════════════════ */
+#nmt-hero-video.nmt-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  /* Full-cover with no letterboxing */
+  object-fit: cover;
+  object-position: center center;
+
+  /* Force the video onto its own GPU compositor layer.
+     This prevents the browser from down-sampling or
+     re-compositing the frame — keeping it pixel-perfect. */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: contents;
+
+  /* No filters, no border-radius — nothing that causes
+     an extra rasterisation pass and softens the image. */
+  filter: none;
+  border-radius: 0;
+
+  pointer-events: none;
+  display: block;
+  background: #0a0812;
+}
+
+/* ════════════════════════════════════════════
+   GRADIENT OVERLAY — very subtle, keeps video
+   visible but ensures text readability
+════════════════════════════════════════════ */
+.nmt-video-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  transition: background 0.35s ease;
+}
+
+/* Ultra-thin vignette only at the very edges — video is crystal clear */
+[data-nmt-theme="dark"] .nmt-video-overlay,
+.nmt-video-overlay {
+  background: linear-gradient(to bottom,
+      rgba(10, 8, 26, 0.10) 0%,
+      rgba(10, 8, 26, 0.00) 20%,
+      rgba(10, 8, 26, 0.00) 80%,
+      rgba(10, 8, 26, 0.10) 100%);
+}
+
+/* Light theme — barely-there edge vignette only */
+[data-nmt-theme="light"] .nmt-video-overlay {
+  background: linear-gradient(to bottom,
+      rgba(248, 250, 252, 0.08) 0%,
+      rgba(248, 250, 252, 0.00) 20%,
+      rgba(248, 250, 252, 0.00) 80%,
+      rgba(248, 250, 252, 0.08) 100%);
+}
+
+/* ════════════════════════════════════════════
+   SCROLL PROGRESS BAR — thin violet→cyan line
+   at the very bottom of the sticky viewport
+════════════════════════════════════════════ */
+.nmt-scroll-bar-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 10;
+}
+
+.nmt-scroll-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #7c3aed 0%, #06b6d4 100%);
+  border-radius: 0 2px 2px 0;
+  /* No transition — updated every frame for real-time feel */
+}
+
+/* ════════════════════════════════════════════
+   SECOND BADGE — bottom-right timestamp
+════════════════════════════════════════════ */
+.nmt-sec-badge {
+  position: absolute;
+  bottom: 14px;
+  right: 18px;
+  z-index: 10;
+}
+
+.nmt-sec-badge span {
+  font-family: 'Inter', monospace, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.30);
+  color: #a78bfa;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .nmt-video-wrap {
+    height: 100svh;
+  }
+
+  .nmt-sec-badge {
+    bottom: 10px;
+    right: 12px;
+  }
+}
+
+/* ════════════════════════════════════════════
+   LOADING OVERLAY
+   Shown until canplaythrough fires so the user
+   can't scroll into un-buffered frames.
+════════════════════════════════════════════ */
+.nmt-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(10, 8, 26, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.nmt-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(124, 58, 237, 0.25);
+  border-top-color: #7c3aed;
+  border-radius: 50%;
+  animation: nmt-spin 0.8s linear infinite;
+}
+
+@keyframes nmt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.nmt-loading-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #a78bfa;
+}
+
+/* ════════════════════════════════════════════
+   SCROLL HINT
+   Animated arrow shown after video is buffered.
+════════════════════════════════════════════ */
+.nmt-scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: nmt-fade-in 0.6s ease forwards;
+  pointer-events: none;
+}
+
+.nmt-scroll-hint span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.nmt-scroll-arrow {
+  width: 20px;
+  height: 20px;
+  border-right: 2px solid rgba(255, 255, 255, 0.45);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.45);
+  transform: rotate(45deg);
+  animation: nmt-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes nmt-bounce {
+
+  0%,
+  100% {
+    transform: rotate(45deg) translateY(0);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: rotate(45deg) translateY(5px);
+    opacity: 1;
+  }
+}
+
+@keyframes nmt-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

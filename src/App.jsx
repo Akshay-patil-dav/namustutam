@@ -1,0 +1,226 @@
+import { useEffect, useRef, useState } from 'react';
+import './App.css';
+import Navbar from './components/Navbar';
+import heroVideo from './assets/Videos/HeroSection.mp4';
+
+/*
+  PX_PER_SEC  — pixels of scroll that equal 1 second of video playback.
+  MAX_RATE    — fastest playbackRate allowed (4× = very fast scroll).
+  HARD_DRIFT  — if video drifts this many seconds from expected, hard-seek.
+  STOP_MS     — milliseconds after last scroll event before pausing.
+*/
+const PX_PER_SEC = 300;
+const MAX_RATE = 4.0;
+const HARD_DRIFT = 0.8;
+const STOP_MS = 130;
+
+function App() {
+  const videoRef = useRef(null);
+  const heroRef = useRef(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    document.documentElement.classList.add('nmt-over-video');
+    document.documentElement.classList.remove('nmt-scrolled');
+
+    /* ─── velocity tracking ─── */
+    let prevY = window.scrollY;
+    let prevT = performance.now();
+    let vel = 0;   // px/s — exponentially smoothed scroll velocity
+    let stopTimer = null;
+    let rafId = null;
+
+    /* ── Map scroll position → video time ── */
+    const calcTarget = () => {
+      const hero = heroRef.current;
+      if (!hero || !video.duration) return 0;
+      const scrollable = hero.offsetHeight - window.innerHeight;
+      if (scrollable <= 0) return 0;
+      const p = Math.min(1, Math.max(0, window.scrollY / scrollable));
+      return p * video.duration;
+    };
+
+    /* ── Update progress bar and time badge ── */
+    const updateUI = () => {
+      const t = video.currentTime;
+      const dur = video.duration || 1;
+      const fill = document.getElementById('nmt-scroll-bar-fill');
+      if (fill) fill.style.width = `${(t / dur * 100).toFixed(2)}%`;
+      const lbl = document.getElementById('nmt-sec-label');
+      if (lbl) lbl.textContent = `${t.toFixed(1)}s`;
+    };
+
+    /* ── One frame sync — runs inside rAF ── */
+    const syncFrame = () => {
+      rafId = null;
+      if (!video.duration) return;
+
+      const target = calcTarget();
+      const drift = target - video.currentTime;
+
+      /* If very far off: hard-seek to catch up instantly */
+      if (Math.abs(drift) > HARD_DRIFT) {
+        video.pause();
+        video.currentTime = target;
+        updateUI();
+        return;
+      }
+
+      if (vel > 20) {
+        /*
+          Scrolling DOWN — play the video forward at native speed.
+          playbackRate = (scroll px/s) ÷ (px that = 1 video-second)
+                       = how many video-seconds pass per real second.
+          This makes the video exactly track the scroll speed.
+        */
+        const rate = Math.min(vel / PX_PER_SEC, MAX_RATE);
+        const clampedRate = Math.max(0.25, rate);
+
+        if (video.paused) {
+          video.currentTime = target;      // snap before play
+          video.playbackRate = clampedRate;
+          video.play().catch(() => {
+            /* Autoplay blocked — fall back to direct seek */
+            video.currentTime = target;
+          });
+        } else {
+          video.playbackRate = clampedRate;
+        }
+
+      } else if (vel < -20) {
+        /*
+          Scrolling UP — browsers don't support negative playbackRate,
+          so we seek directly for reverse scrub.
+        */
+        if (!video.paused) video.pause();
+        video.currentTime = target;
+
+      } else {
+        /* Barely moving — keep paused at exact frame */
+        if (!video.paused) video.pause();
+        video.currentTime = target;
+      }
+
+      updateUI();
+    };
+
+    /* ── Scroll handler ── */
+    const onScroll = () => {
+      /* Update scroll velocity with exponential moving average */
+      const now = performance.now();
+      const dt = (now - prevT) / 1000; // seconds
+      if (dt > 0 && dt < 0.5) {
+        const rawVel = (window.scrollY - prevY) / dt;
+        vel = vel * 0.55 + rawVel * 0.45; // EMA — smooths erratic events
+      }
+      prevY = window.scrollY;
+      prevT = now;
+
+      /* Navbar class toggle */
+      const hero = heroRef.current;
+      if (hero) {
+        const past = window.scrollY >= hero.offsetHeight - 10;
+        document.documentElement.classList.toggle('nmt-scrolled', past);
+        document.documentElement.classList.toggle('nmt-over-video', !past);
+      }
+
+      /* One rAF per scroll tick — no more, no less */
+      if (!rafId) rafId = requestAnimationFrame(syncFrame);
+
+      /* Detect scroll stop — pause and snap to exact frame */
+      clearTimeout(stopTimer);
+      stopTimer = setTimeout(() => {
+        vel = 0;
+        if (!video.paused) video.pause();
+        video.currentTime = calcTarget();
+        updateUI();
+      }, STOP_MS);
+    };
+
+    /* ── Video metadata loaded ── */
+    const onMeta = () => {
+      const dur = video.duration;
+      if (!dur) return;
+      if (heroRef.current) {
+        heroRef.current.style.height =
+          `${Math.ceil(dur) * PX_PER_SEC + window.innerHeight}px`;
+      }
+      video.pause();
+      video.currentTime = 0;
+    };
+
+    /* ── canplaythrough: entire video buffered ── */
+    const onCanPlay = () => setReady(true);
+
+    video.addEventListener('loadedmetadata', onMeta);
+    video.addEventListener('canplaythrough', onCanPlay);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    if (video.readyState >= 1) onMeta();
+    if (video.readyState >= 4) onCanPlay();
+
+    return () => {
+      video.removeEventListener('loadedmetadata', onMeta);
+      video.removeEventListener('canplaythrough', onCanPlay);
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(stopTimer);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  return (
+    <>
+      <Navbar />
+
+      <main id="nmt-main-content">
+        <section id="nmt-hero" className="nmt-hero-section" ref={heroRef}>
+          <div className="nmt-video-wrap">
+
+            <video
+              id="nmt-hero-video"
+              ref={videoRef}
+              className="nmt-hero-video"
+              src={heroVideo}
+              muted
+              playsInline
+              preload="auto"
+              aria-hidden="true"
+            />
+
+            {/* Spinner while buffering */}
+            {!ready && (
+              <div className="nmt-loading-overlay" aria-hidden="true">
+                <div className="nmt-spinner" />
+                <span className="nmt-loading-text">Loading…</span>
+              </div>
+            )}
+
+            {/* Scroll hint after ready */}
+            {ready && (
+              <div className="nmt-scroll-hint" aria-hidden="true">
+                <span>Scroll to explore</span>
+                <div className="nmt-scroll-arrow" />
+              </div>
+            )}
+
+            <div className="nmt-video-overlay" aria-hidden="true" />
+
+            <div className="nmt-scroll-bar-wrap" aria-hidden="true">
+              <div id="nmt-scroll-bar-fill" className="nmt-scroll-bar-fill" />
+            </div>
+
+            <div className="nmt-sec-badge" aria-hidden="true">
+              <span id="nmt-sec-label">0.0s</span>
+            </div>
+
+          </div>
+        </section>
+      </main>
+    </>
+  );
+}
+
+export default App;
